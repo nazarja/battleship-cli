@@ -1,9 +1,6 @@
 from battleship.game import Game
 
 
-def run():
-    """ starts script and initilises game """
-    Game()
-
-
-run()
+if __name__ == '__main__':
+    game = Game()
+    game.start()

@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import List
-import json
 import gspread
 from google.oauth2.service_account import Credentials
+
 
 class Leaderboard:
     """ groups together methods to deal with google sheets """
@@ -19,4 +19,3 @@ class Leaderboard:
         self.sheet = self.client.open('Battleship')
 
         self.leaderboard: List[str] = self.sheet.worksheet('leaderboard').get_all_values()
-        print(self.leaderboard)
