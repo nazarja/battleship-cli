@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import List
+import os
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -13,7 +14,7 @@ class Leaderboard:
             'https://www.googleapis.com/auth/drive'
         ]
 
-        self.creds = Credentials.from_service_account_file('creds.json')
+        self.creds = os.environ.get('CREDS', Credentials.from_service_account_file('creds.json')) 
         self.scoped_creds = self.creds.with_scopes(self.scope)
         self.client = gspread.authorize(self.scoped_creds)
         self.sheet = self.client.open('Battleship')
