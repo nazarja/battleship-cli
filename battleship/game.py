@@ -1,6 +1,6 @@
 from __future__ import annotations
 from battleship.leaderboard import Leaderboard
-from typing import List, Dict, Any
+from typing import List
 from battleship.helpers import isNotNumber
 import time
 import sys

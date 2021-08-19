@@ -1,4 +1,5 @@
 from __future__ import annotations
+from posix import environ
 from typing import List
 import os
 import json
@@ -15,11 +16,9 @@ class Leaderboard:
             'https://www.googleapis.com/auth/drive'
         ]
 
-        if os.environ.get('CREDS'):
-            self.creds = json.loads(os.environ.get('CREDS'))
-        else:
-            self.creds = Credentials.from_service_account_file('creds.json')
-
+        self.creds = Credentials.from_service_account_file(
+            os.environ.get('CREDS') if os.environ.get('CREDS') else 'creds.json'
+        )
         self.scoped_creds = self.creds.with_scopes(self.scope)
         self.client = gspread.authorize(self.scoped_creds)
         self.sheet = self.client.open('Battleship')
