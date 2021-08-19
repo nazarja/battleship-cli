@@ -2,8 +2,9 @@ from __future__ import annotations
 from battleship.leaderboard import Leaderboard
 from typing import List
 from battleship.helpers import isNotNumber
-import time
+import os
 import sys
+import time
 
 
 class Game:
@@ -15,7 +16,7 @@ class Game:
     def start(self) -> None:
         self.welcome_message()
         self.login()
-        self.show_options()
+        # self.show_options()
 
     def welcome_message(self) -> None:
         border: str = '\n' + '=' * 80 + '\n'
@@ -36,7 +37,7 @@ class Game:
         elif option == '2':
             print('CREATE NEW USER')
         else:
-            sys.exit()
+            print('EXITING.....')
 
     def show_options(self) -> None:
         options: List[str] = ['Play Battleship', 'View Top 10 Leaderboard', 'View Your Highest Score', 'Quit']
@@ -47,9 +48,9 @@ class Game:
         elif option == '2':
             print('TOP 10 LEADERBOARD')
         elif option == '3':
-            print('TVIEW HIGHEST SCORE')
+            print('VIEW HIGHEST SCORE')
         else:
-            sys.exit()
+            print('EXITING.....')
 
     def display_menu(self, options: List[str], menu_text: str) -> str:
         valid_option: bool = False
@@ -60,10 +61,10 @@ class Game:
             print(f'{index}. {option}')
 
         print(f'\nPlease Choose an Option (1 - {len(options)})')
+
         while not valid_option:
             user_input: str = input(': ')
-
-            if not isNotNumber(user_input) and user_input not in [str(x) for x in range(len(options))]:
+            if not isNotNumber(user_input) or user_input not in [str(x) for x in range(1, len(options) + 1)]:
                 sys.stdout.write("\033[F") 
                 print('Invalid input, please try again.')
                 time.sleep(2)
