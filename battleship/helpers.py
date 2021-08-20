@@ -6,7 +6,7 @@ from typing import List
 
 
 def isNotNumber(input: str) -> bool:
-    return any(c.isdigit() for c in input)
+    return any(not c.isdigit() for c in input)
 
 
 def get_score_as_int(x: List[str]) -> int:

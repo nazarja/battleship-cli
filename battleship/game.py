@@ -1,13 +1,19 @@
 from __future__ import annotations
 import os
-from typing import List
+from typing import List, Dict, Type
 from .leaderboard import Leaderboard
+from.battleship import Battleship
 from .helpers import isNotNumber, heading, input_error
 
 
 class Game:
     def __init__(self):
-        self.leaderboard = Leaderboard()
+        self.leaderboard: Leaderboard = Leaderboard()
+        Battleship({
+            'height': [5, 10, 10],
+            'width': [5, 10, 10],
+            'ships': [3, 5, 5]
+        }, self.leaderboard)
 
     def start(self) -> None:
         self.welcome_message()
@@ -49,7 +55,7 @@ class Game:
         option: str = self.display_menu(options, 'GAME')
         
         if option == '1':
-            print('PLAY GAME')
+            self.board_options()
         elif option == '2':
             self.leaderboard.get_top()
         elif option == '3':
@@ -82,6 +88,35 @@ class Game:
 
         return user_input
 
+    def board_options(self) -> None:
+        print(heading(self.leaderboard.username))
+        print('~~ Board Dimensions ~~ \n')
+
+        print('min-height:  5  -  min-width: 10  -  min-ships: 3')
+        print('max-height: 5  -  max-width: 10  -  max-ships: 5')
+        print('\n')
+
+        board: Dict[str, List[int]] = {
+            'height': [5, 10, 0],
+            'width': [5, 10, 0],
+            'ships': [3, 5, 0]
+        }
+
+        for key, value in board.items():
+            while True:
+                print(f'Enter the boards {key}')
+                user_input: str = input(': ')
+
+                if not isNotNumber(user_input):
+                    if int(user_input) >= value[0] and int(user_input) <= value[1]:
+                        board[key][2] = int(user_input)
+                        print()
+                        break
+                
+                input_error('Invalid input, please enter a valid number in range', 2)
+        
+        self.battleship: Battleship = Battleship(board, self.leaderboard)
+       
     def restart(self) -> None:
         os.system('clear')
         self.leaderboard = Leaderboard()

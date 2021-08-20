@@ -112,8 +112,10 @@ class Leaderboard:
     def get_user_profile(self) -> None:
         print(heading(self.username))
         print(f'~~ {self.username}\'s Profile ~~ \n')
+
         user = self.get_user(self.username)
         index = sorted(self.leaderboard, key=get_score_as_int, reverse=True).index(user)
+        
         print(self.render_entry(f'{index+1}.', user))
         input('\nPress enter to continue... \n')
 
