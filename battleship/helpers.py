@@ -13,11 +13,12 @@ def get_score_as_int(x: List[str]) -> int:
     return int(x[3])
 
 
-def heading() -> str:
+def heading(username: str) -> str:
     os.system('clear')
     return (
         '=' * 80 +
-        '\n    BATTLESHIP \n' +
+        '\n    BATTLESHIP' +
+        (f' - Welcome, {username.capitalize()} \n' if username else '\n') +
         '=' * 80 + '\n'
     )
 
@@ -29,5 +30,5 @@ def input_error(message: str, times: int) -> None:
     sys.stdout.write("\033[F\033[K" * times)
 
 
-def display_quit_info() -> None:
-    print('- Enter \'quit\' to return to the menu. \n')
+def quit_text() -> str:
+    return '- Enter \'quit\' to return to the menu. \n'

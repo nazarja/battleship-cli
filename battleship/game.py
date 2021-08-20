@@ -16,21 +16,19 @@ class Game:
     def welcome_message(self) -> None:
         print(
             '\n' + '=' * 80 + '\n' +
-            '\n    GET READY TO PLAY BATTLESHIP !! \n' +
-            '\n    A turn based battleship game playing against the cpu. \n' +
-            '\n' +
-            '\n    Objective: \n' +
-            '\n      - Sink all of the cpu\'s ships in as little moves as possible. \n' +
-            '\n' +
-            '\n    Features: \n' +
-            '\n      - menus, login, leaderboards, configuarable board size \n' +
+            '\nGET READY TO PLAY BATTLESHIP !! \n' +
+            '\nA turn based battleship game playing against the cpu. \n' +
+            '\nObjective: \n' +
+            '\n  - Sink all of the cpu\'s ships in as little moves as possible. \n' +
+            '\nFeatures: \n' +
+            '\n  - leaderboards, login, menus, configuarable board size \n' +
             '\n' + '=' * 80 + '\n'
         )
 
         input('Press enter to start ... \n')
 
     def login(self) -> None:
-        options: List[str] = ['I\'m a New User', 'I\'m a Returning User', 'Restart']
+        options: List[str] = ['I\'m a New User', 'I\'m a Returning User', 'Quit']
         option: str = self.display_menu(options, 'LOGIN')
         response: int = 0
       
@@ -47,23 +45,25 @@ class Game:
             self.show_options()
 
     def show_options(self) -> None:
-        options: List[str] = ['Play Battleship', 'View Top 10 Leaderboard', 'View Your Highest Score', 'Restart']
+        options: List[str] = ['Play Battleship', 'View Top 10 Leaderboard', 'View Your Profile', 'Quit']
         option: str = self.display_menu(options, 'GAME')
         
         if option == '1':
             print('PLAY GAME')
         elif option == '2':
-            print('TOP 10 LEADERBOARD')
+            self.leaderboard.get_top()
         elif option == '3':
-            print('VIEW HIGHEST SCORE')
+            self.leaderboard.get_user_profile()
         else:
             self.restart()
+
+        self.show_options()
 
     def display_menu(self, options: List[str], menu_text: str) -> str:
         valid_option: bool = False
         user_input: str = '0'
 
-        print(heading())
+        print(heading(self.leaderboard.username))
         print(f'~~ {menu_text} MENU ~~ \n')
 
         for index, option in enumerate(options, start=1):
@@ -84,4 +84,5 @@ class Game:
 
     def restart(self) -> None:
         os.system('clear')
+        self.leaderboard = Leaderboard()
         self.start()
