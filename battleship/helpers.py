@@ -27,3 +27,7 @@ def input_error(message: str, times: int) -> None:
     print(f'{message}')
     time.sleep(2)
     sys.stdout.write("\033[F\033[K" * times)
+
+
+def display_quit_info() -> None:
+    print('- Enter \'quit\' to return to the menu. \n')

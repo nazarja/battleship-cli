@@ -2,10 +2,10 @@ from __future__ import annotations
 import os
 import json
 import gspread
-from bcrypt import gensalt, hashpw
-from google.oauth2.service_account import Credentials
 from typing import List
-from .helpers import get_score_as_int, heading, input_error
+from google.oauth2.service_account import Credentials
+from .helpers import get_score_as_int, heading, input_error, display_quit_info
+from bcrypt import gensalt, hashpw, checkpw
 
 
 class Leaderboard:
@@ -29,30 +29,32 @@ class Leaderboard:
 
     def new_user(self) -> int:
         print(heading())
-        print('~~ Enter \'quit()\' to return to the login menu. ~~ \n')
+        display_quit_info()
 
         while True:
             print('Enter New Username')
             username_input: str = input(': ')
 
-            if username_input == 'quit()':
-                return  0
+            if username_input == 'quit':
+                return 0
             elif len(username_input) < 3:
                 input_error('Invalid input, Username must be more than 3 characters', 2)
                 continue
-            
-            if self.get_user(username_input) == []:
+            elif self.get_user(username_input) == []:
                 print(heading())
+                display_quit_info()
+
                 while True:
                     print('Please enter a password')
                     password_input: str = input(': ')
 
-                    if password_input == 'quit()':
+                    if password_input == 'quit':
                         return 0
                     elif len(password_input) < 5:
                         input_error('Invalid, Password must be more than 5 characters.', 2)
                         continue
                     else:
+                        self.user: str = username_input
                         password: bytes = hashpw(bytes(password_input, 'utf-8'), gensalt())
                         self.worksheet.append_row([username_input.capitalize(), str(password), 0, 0])
                         self.get_leaderboard()
@@ -61,20 +63,34 @@ class Leaderboard:
                 input_error('Invalid input, Username is already is use.', 2)
                 continue
 
-        return 0
-
     def returning_user(self) -> int:
         print(heading())
+        display_quit_info()
 
-        user_input: str = input('Enter Your Username: \n')
+        while True:
+            print('Enter New Username')
+            user_input: str = input(': ')
+            user: List[str] = self.get_user(user_input)
 
-        for entry in self.leaderboard:
-            username: str = entry[0]
-            if user_input.capitalize() == username:
-                print(f'Welcome back, {username}')
+            if user_input == 'quit':
+                return 0
+            elif user == []:
+                input_error('User not found, please try again.', 2)
+                continue
+            else:
+                print(heading())
+                display_quit_info()
 
-        return 0
-        
+                while True:
+                    print('Enter Your Password.')
+                    password_input = input(': ')
+                    
+                    if checkpw(bytes(password_input, 'utf-8'), bytes(user[1][2:-1], 'utf-8')):
+                        self.user: List[str] = user
+                        return 1
+                    else:
+                        input_error('Incorrect password, please try again.', 2)
+                
     def get_leaderboard(self):
         self.leaderboard = self.worksheet.get_all_values()[1:]
 
