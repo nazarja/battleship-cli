@@ -1,46 +1,53 @@
 from __future__ import annotations
-from battleship.leaderboard import Leaderboard
-from typing import List
-from battleship.helpers import isNotNumber
 import os
-import sys
-import time
+from typing import List
+from .leaderboard import Leaderboard
+from .helpers import isNotNumber, heading, input_error
 
 
 class Game:
-    """ the main game logic """
     def __init__(self):
         self.leaderboard = Leaderboard()
-        self.username = None
 
     def start(self) -> None:
         self.welcome_message()
         self.login()
-        # self.show_options()
 
     def welcome_message(self) -> None:
-        border: str = '\n' + '=' * 80 + '\n'
         print(
-            border +
-            '\n    Get Ready To Play Battleship !! \n' +
-            '\n    - A turn based battleship game where you\'ll play against the cpu. \n' +
-            '\n    - Including: Leaderboards, Menu\'s and User Generated Board Config \n' +
-            border
+            '\n' + '=' * 80 + '\n' +
+            '\n    GET READY TO PLAY BATTLESHIP !! \n' +
+            '\n    A turn based battleship game playing against the cpu. \n' +
+            '\n' +
+            '\n    Objective: \n' +
+            '\n      - Sink all of the cpu\'s ships in as little moves as possible. \n' +
+            '\n' +
+            '\n    Features: \n' +
+            '\n      - menus, login, leaderboards, configuarable board size \n' +
+            '\n' + '=' * 80 + '\n'
         )
 
+        input('Press enter to start ... \n')
+
     def login(self) -> None:
-        options: List[str] = ['Login With Password', 'Enter New Username', 'Quit']
+        options: List[str] = ['I\'m a New User', 'I\'m a Returning User', 'Restart']
         option: str = self.display_menu(options, 'LOGIN')
+        response: int = 0
       
         if option == '1':
-            print('LOGGING IN')
+            response = self.leaderboard.new_user()
         elif option == '2':
-            print('CREATE NEW USER')
+            response = self.leaderboard.returning_user()
         else:
-            print('EXITING.....')
+            self.restart()
+
+        if response == 0:
+            self.login()
+        else:
+            self.show_options()
 
     def show_options(self) -> None:
-        options: List[str] = ['Play Battleship', 'View Top 10 Leaderboard', 'View Your Highest Score', 'Quit']
+        options: List[str] = ['Play Battleship', 'View Top 10 Leaderboard', 'View Your Highest Score', 'Restart']
         option: str = self.display_menu(options, 'GAME')
         
         if option == '1':
@@ -50,12 +57,14 @@ class Game:
         elif option == '3':
             print('VIEW HIGHEST SCORE')
         else:
-            print('EXITING.....')
+            self.restart()
 
     def display_menu(self, options: List[str], menu_text: str) -> str:
         valid_option: bool = False
+        user_input: str = '0'
 
-        print(f'~~ {menu_text} MENU~~ \n')
+        print(heading())
+        print(f'~~ {menu_text} MENU ~~ \n')
 
         for index, option in enumerate(options, start=1):
             print(f'{index}. {option}')
@@ -64,13 +73,15 @@ class Game:
 
         while not valid_option:
             user_input: str = input(': ')
+
             if not isNotNumber(user_input) or user_input not in [str(x) for x in range(1, len(options) + 1)]:
-                sys.stdout.write("\033[F") 
-                print('Invalid input, please try again.')
-                time.sleep(2)
-                sys.stdout.write("\033[F\033[K")
+                input_error('Invalid input, please try again.', 1)
                 continue
 
             valid_option = True
-            return user_input
-        return '0'
+
+        return user_input
+
+    def restart(self) -> None:
+        os.system('clear')
+        self.start()
