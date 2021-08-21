@@ -1,16 +1,17 @@
 from __future__ import annotations
 import time
 from .leaderboard import Leaderboard
-from .helpers import heading, input_error, isNotNumber
-from typing import Dict, List
+from .helpers import heading, input_error, Colors
+from typing import Dict, List, Callable
 from random import choice
 
 
 class Battleship:
-    def __init__(self, board: Dict[str, List[int]], leaderboard: Leaderboard):
+    def __init__(self, board: Dict[str, List[int]], leaderboard: Leaderboard, restart: Callable):
         self.leaderboard: Leaderboard = leaderboard
         self.height: int = board["height"][2]
         self.width: int = board["width"][2]
+        self.restart = restart
         self.num_ships: int = board["ships"][2]
         self.user_board: List[List[str]] = []
         self.hits_board: List[List[str]] = []
@@ -53,6 +54,8 @@ class Battleship:
             self.auto_create_board(self.cpu_board)
             self.auto_create_board(self.user_board)
             self.print_boards()
+
+        input('')
 
     def create_boards(self) -> None:
         for y in range(self.height):
@@ -105,10 +108,8 @@ class Battleship:
         print(heading(self.leaderboard.username))
 
         print(f'\n~~ Place your {self.num_ships} ships ~~ \n')
-        print(f'\nx is horizontal, y is vertical \n')
-        print(f'\nEnter your input in the format: x , y')
-        
-        time.sleep(3)
+        print(f'\n - Type "quit" to return to the menu \n')
+        time.sleep(2)
         
         for index, ship in enumerate(self.ships["names"]):
             length: str = self.ships["length"][index]
@@ -118,13 +119,15 @@ class Battleship:
             while True:
                 self.print_boards()
 
-                print(f'Place your {ship}, it is {length} lengths long\n')
+                print(f'- Place your {ship}, it is {length} lengths long\n')
 
                 while direction_absent:
-                    print('Place ship horizontal or vertical?')
+                    print('Place ship horizontal ⇄, or vertical ⇅, ?')
                     direction_input: str = input('h or v: ')
 
-                    if direction_input.lower() not in ['h', 'v']:
+                    if direction_input == 'quit':
+                        self.restart()
+                    elif direction_input.lower() not in ['h', 'v']:
                         input_error('Invalid input, options are: h or v', 2)
                         continue
                     else:
@@ -134,6 +137,10 @@ class Battleship:
                 
                 print(f'Enter the {self.direction_str[direction_input]} x, y coordinates. Seperated by a comma.')
                 user_input = input('x , y: ')
+                
+                if user_input == 'quit':
+                    self.restart()
+                
                 user_input = [c.strip() for c in user_input.split(',')]
 
                 if len(user_input) != 2:
@@ -173,13 +180,3 @@ class Battleship:
             else:
                 board[x][y+i] = char
 
-
-class Colors:
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    ORANGE = '\033[93m'
-    YELLOW = '\u001b[33m'
-    RED = '\033[91m'
-    BLACK = '\u001b[30m'
-    ENDC = '\033[0m'

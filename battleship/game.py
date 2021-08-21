@@ -9,11 +9,12 @@ from .helpers import isNotNumber, heading, input_error
 class Game:
     def __init__(self):
         self.leaderboard: Leaderboard = Leaderboard()
+        # self.start()
         Battleship({
-            'height': [5, 10, 10],
-            'width': [5, 10, 10],
+            'height': [6, 10, 10],
+            'width': [6, 10, 10],
             'ships': [3, 5, 5]
-        }, self.leaderboard)
+        }, self.leaderboard, self.restart)
 
     def start(self) -> None:
         self.welcome_message()
@@ -80,7 +81,7 @@ class Game:
         while not valid_option:
             user_input: str = input(': ')
 
-            if not isNotNumber(user_input) or user_input not in [str(x) for x in range(1, len(options) + 1)]:
+            if isNotNumber(user_input) and user_input not in [str(x) for x in range(1, len(options) + 1)]:
                 input_error('Invalid input, please try again.', 1)
                 continue
 
@@ -92,13 +93,13 @@ class Game:
         print(heading(self.leaderboard.username))
         print('~~ Board Dimensions ~~ \n')
 
-        print('min-height:  5  -  min-width: 10  -  min-ships: 3')
-        print('max-height: 5  -  max-width: 10  -  max-ships: 5')
+        print('min-height:  6  -  min-width: 10  -  min-ships: 3')
+        print('max-height:  6  -  max-width: 10  -  max-ships: 5')
         print('\n')
 
         board: Dict[str, List[int]] = {
-            'height': [5, 10, 0],
-            'width': [5, 10, 0],
+            'height': [6, 10, 0],
+            'width': [6, 10, 0],
             'ships': [3, 5, 0]
         }
 
@@ -115,7 +116,7 @@ class Game:
                 
                 input_error('Invalid input, please enter a valid number in range', 2)
         
-        self.battleship: Battleship = Battleship(board, self.leaderboard)
+        self.battleship: Battleship = Battleship(board, self.leaderboard, self.restart)
        
     def restart(self) -> None:
         os.system('clear')

@@ -5,6 +5,17 @@ import sys
 from typing import List
 
 
+class Colors:
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    ORANGE = '\033[93m'
+    YELLOW = '\u001b[33m'
+    RED = '\033[91m'
+    BLACK = '\u001b[30m'
+    ENDC = '\033[0m'
+
+
 def isNotNumber(input: str) -> bool:
     return any(not c.isdigit() for c in input)
 
