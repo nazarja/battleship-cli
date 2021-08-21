@@ -47,9 +47,18 @@ class Battleship:
 
         print('\n')
 
-    def create_ships(self):
-        for i in range(self.ships):
-            pass
+    def create_ships(self) -> None:
+       submarine: str = 'S' * 2
+       destroyer: str = 'D' * 3 
+       cruiser: str = 'C' * 3 
+       battleship: str = 'B' * 4 
+       carrier: str = 'A' * 5
+
+
+       ships = [submarine, destroyer, cruiser, battleship, carrier]
+       horizontal_or_vertical = choice(['h', 'v'])
+
+
 
 
 class Colors:
