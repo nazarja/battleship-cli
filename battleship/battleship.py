@@ -1,6 +1,7 @@
 from __future__ import annotations
+import time
 from .leaderboard import Leaderboard
-from .helpers import heading
+from .helpers import heading, input_error, isNotNumber
 from typing import Dict, List
 from random import choice
 
@@ -14,7 +15,7 @@ class Battleship:
         self.user_board: List[List[str]] = []
         self.hits_board: List[List[str]] = []
         self.cpu_board: List[List[str]] = []
-
+        self.direction_str: Dict[str, str] = {'h': 'horizontal', 'v': 'vertical'}
         self.ships: Dict[str, List[str]] = {
             "names": ['Submarine', 'Destroyer', 'Crusier', 'Battleship', 'Aircraft Carrier'][:self.num_ships],
             "codes": ['A', 'B', 'C', 'D', 'S'],
@@ -24,11 +25,34 @@ class Battleship:
 
         self.start()
 
-
     def start(self) -> None:
         self.create_boards()
-        self.create_user_board(self.user_board)
-        self.create_cpu_board(self.cpu_board)
+        self.choose_board_creation()
+
+    def choose_board_creation(self):
+        print(heading(self.leaderboard.username))
+
+        print('~~ You can manually place your ships or auto create your board ~~\n')
+        print('Manual or Auto Create Board?\n')
+
+        user_input: str = ''
+
+        while True:
+            user_input = input('m or a: ')
+            if user_input.lower() not in ['m', 'a']:
+                input_error('Invalid input, Choices are m or a', 1)
+                continue
+            else:
+                break
+        
+        if user_input.lower() == 'm':
+            self.create_user_board()
+            self.auto_create_board(self.cpu_board)
+            self.print_boards()
+        else:
+            self.auto_create_board(self.cpu_board)
+            self.auto_create_board(self.user_board)
+            self.print_boards()
 
     def create_boards(self) -> None:
         for y in range(self.height):
@@ -61,57 +85,93 @@ class Battleship:
 
     def colorize_char(self, c: str) -> str:
         if c in self.ships['codes']:
-            return Colors.GREEN + c + ' ' * 2 + Colors.ENDC
+            return Colors.BLUE + c + ' ' * 2 + Colors.ENDC
         return c
 
-    def create_user_board(self, board: List[List[str]]) -> None:
-        print(heading(self.leaderboard.username))
-
-        print(f'Place your {self.num_ships} ships')
-        
-        for index, ship in enumerate(self.ships["names"]):
-            print(f'Place your {ship}, it is {self.ships["length"][index]} long')
-            user_input = input(': ')
-
-
-
-    def create_cpu_board(self, board: List[List[str]]) -> None:
+    def auto_create_board(self, board: List[List[str]]) -> None:
         for i in range(self.num_ships):
-            ship = self.ships["chars"][i]
+            ship: str = self.ships["chars"][i]
 
             while True:
-                collision: bool = False
-                x = choice([i for i in range(self.width)])
-                y = choice([i for i in range(self.height)])
+                x: int = choice([i for i in range(self.width)])
+                y: int = choice([i for i in range(self.height)])
+                h_or_v: str = 'h' if choice([True, False]) else 'v'
 
-                if choice([True, False]):
-                    if x + len(ship) > self.width:
-                        x = self.width - len(ship)
-                    
-                    for a in range(len(ship)):
-                        if board[x+a][y] != '.':
-                            collision = True
-                    
-                    if collision:
+                if self.validate_placement(x, y, int(self.ships["length"][i]), h_or_v, board):
+                    self.place_ship(x, y, int(self.ships["length"][i]), ship[0], h_or_v, board)
+                    break
+
+    def create_user_board(self) -> None:
+        print(heading(self.leaderboard.username))
+
+        print(f'\n~~ Place your {self.num_ships} ships ~~ \n')
+        print(f'\nx is horizontal, y is vertical \n')
+        print(f'\nEnter your input in the format: x , y')
+        
+        time.sleep(3)
+        
+        for index, ship in enumerate(self.ships["names"]):
+            length: str = self.ships["length"][index]
+            direction_input: str = 'h'
+            direction_absent: bool = True
+
+            while True:
+                self.print_boards()
+
+                print(f'Place your {ship}, it is {length} lengths long\n')
+
+                while direction_absent:
+                    print('Place ship horizontal or vertical?')
+                    direction_input: str = input('h or v: ')
+
+                    if direction_input.lower() not in ['h', 'v']:
+                        input_error('Invalid input, options are: h or v', 2)
                         continue
-
-                    for j in range(len(ship)):
-                        board[x+j][y] = ship[j]
-                else:
-                    if y + len(ship) > self.height:
-                        y = self.height - len(ship)
-
-                    for a in range(len(ship)):
-                        if board[x][y+a] != '.':
-                            collision = True
-                    
-                    if collision:
-                        continue
-
-                    for k in range(len(ship)):
-                        board[x][y+k] = ship[k]
+                    else:
+                        direction_absent = False
+                        input_error('', 2)
+                        break
                 
-                break
+                print(f'Enter the {self.direction_str[direction_input]} x, y coordinates. Seperated by a comma.')
+                user_input = input('x , y: ')
+                user_input = [c.strip() for c in user_input.split(',')]
+
+                if len(user_input) != 2:
+                    input_error('Please enter coords in the correct format: x , y', 2)
+                    continue
+                elif user_input[0].isdigit() and user_input[1].isdigit():
+                    if self.validate_placement(int(user_input[0]), int(user_input[1]), int(length), direction_input, self.user_board):
+                        self.place_ship(int(user_input[0]), int(user_input[1]), int(length), ship[0], direction_input, self.user_board)
+                        break
+                    else:
+                        input_error('Ship cannot be placed there, please try again', 2)
+                else:
+                    input_error('Please enter coords in the correct format: X , Y', 2)
+                    continue
+
+    def validate_placement(self, x: int, y: int, length: int, direction_input: str, board: List[List[str]]) -> bool:
+        if direction_input == 'v':
+            if x + length < self.width:
+                for i in range(length):
+                    if board[x+i][y] != '.':
+                        return False
+            else:
+                return False
+        else:
+            if y + length < self.height:
+                for i in range(length):
+                    if board[x][y+i] != '.':
+                        return False
+            else:
+                return False
+        return True
+
+    def place_ship(self, x: int, y: int, length: int, char: str, direction_input: str, board: List[List[str]]) -> None:
+        for i in range(length):
+            if direction_input == 'v':
+                board[x+i][y] = char
+            else:
+                board[x][y+i] = char
 
 
 class Colors:
