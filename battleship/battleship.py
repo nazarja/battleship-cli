@@ -15,6 +15,8 @@ class Battleship:
         self.hits_board: List[List[str]] = []
         self.cpu_board: List[List[str]] = []
         self.create_boards()
+        self.create_ships(self.user_board)
+        self.print_boards()
 
     def create_boards(self) -> None:
         for y in range(self.height):
@@ -22,7 +24,6 @@ class Battleship:
             self.hits_board.append(['.' for x in range(self.width)])
             self.cpu_board.append(['.' for x in range(self.width)])
 
-        self.print_boards()
 
     def print_boards(self) -> None:
         print(heading(self.leaderboard.username))
@@ -47,16 +48,45 @@ class Battleship:
 
         print('\n')
 
-    def create_ships(self) -> None:
-       submarine: str = 'S' * 2
-       destroyer: str = 'D' * 3 
-       cruiser: str = 'C' * 3 
-       battleship: str = 'B' * 4 
-       carrier: str = 'A' * 5
+    def create_ships(self, board: List[List[str]]) -> None:
+        submarine: str = 'S' * 2
+        destroyer: str = 'D' * 3
+        cruiser: str = 'C' * 3
+        battleship: str = 'B' * 4
+        carrier: str = 'A' * 5
+        ships: List[str] = [submarine, destroyer, cruiser, battleship, carrier]
 
+        for i in range(self.ships):
+            collision: bool = True
+            ship = choice(ships)
 
-       ships = [submarine, destroyer, cruiser, battleship, carrier]
-       horizontal_or_vertical = choice(['h', 'v'])
+            while collision:
+                collision = True
+                x = choice([i for i in range(self.width)])
+                y = choice([i for i in range(self.height)])
+                
+                if choice([True, False]):
+                    if x + len(ship) > self.width:
+                        x = self.width - len(ship)
+                    
+                    for a in range(len(ship)):
+                        if board[x+a][y] != '.':
+                            continue
+
+                    for j in range(len(ship)):
+                        board[x+j][y] = ship[j]
+                else:
+                    if y + len(ship) > self.height:
+                        y = self.height - len(ship)
+
+                    for b in range(len(ship)):
+                        if board[x][y+b] != '.':
+                            continue
+
+                    for k in range(len(ship)):
+                        board[x][y+k] = ship[k]
+                
+                collision = False
 
 
 
