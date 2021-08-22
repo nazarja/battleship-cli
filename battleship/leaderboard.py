@@ -128,3 +128,6 @@ class Leaderboard:
                 return entry
 
         return []
+
+    def update_user_score(self, score: int):
+        pass

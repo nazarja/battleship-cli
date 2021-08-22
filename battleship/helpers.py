@@ -34,11 +34,19 @@ def heading(username: str) -> str:
     )
 
 
-def input_error(message: str, times: int) -> None:
+def output_message(message: str, times: int) -> None:
     sys.stdout.write("\033[F")
     print(f'{message}')
     time.sleep(2)
     sys.stdout.write("\033[F\033[K" * times)
+
+
+def input_error(message: str, times: int) -> None:
+    output_message(message, times)
+
+
+def input_message(message: str, times: int) -> None:
+    output_message(message, times)
 
 
 def quit_text() -> str:

@@ -9,12 +9,12 @@ from .helpers import isNotNumber, heading, input_error
 class Game:
     def __init__(self):
         self.leaderboard: Leaderboard = Leaderboard()
-        # self.start()
-        Battleship({
-            'height': [6, 10, 10],
-            'width': [6, 10, 10],
-            'ships': [3, 5, 5]
-        }, self.leaderboard, self.restart)
+        self.start()
+        # Battleship({
+        #     'height': [6, 10, 6],
+        #     'width': [6, 10, 6],
+        #     'ships': [3, 5, 3]
+        # }, self.leaderboard, self.restart, self.show_options)
 
     def start(self) -> None:
         self.welcome_message()
@@ -116,7 +116,7 @@ class Game:
                 
                 input_error('Invalid input, please enter a valid number in range', 2)
         
-        self.battleship: Battleship = Battleship(board, self.leaderboard, self.restart)
+        self.battleship: Battleship = Battleship(board, self.leaderboard, self.restart, self.show_options)
         self.battleship.start()
        
     def restart(self) -> None:
