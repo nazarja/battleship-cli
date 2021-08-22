@@ -11,6 +11,9 @@ class Battleship:
         self.leaderboard: Leaderboard = leaderboard
         self.height: int = board["height"][2]
         self.width: int = board["width"][2]
+        self.cpu_hits = 0
+        self.hits = 0
+        self.misses = 0
         self.restart = restart
         self.num_ships: int = board["ships"][2]
         self.user_board: List[List[str]] = []
@@ -29,6 +32,7 @@ class Battleship:
     def start(self) -> None:
         self.create_boards()
         self.choose_board_creation()
+        self.play()
 
     def choose_board_creation(self):
         print(heading(self.leaderboard.username))
@@ -39,23 +43,20 @@ class Battleship:
         user_input: str = ''
 
         while True:
-            user_input = input('m or a: ')
-            if user_input.lower() not in ['m', 'a']:
-                input_error('Invalid input, Choices are m or a', 1)
+            user_input = input('manual or auto: ')
+            if user_input.lower() not in ['manual', 'auto']:
+                input_error('Invalid input, Choices are manual or auto', 1)
                 continue
             else:
                 break
         
-        if user_input.lower() == 'm':
+        if user_input.lower() == 'manual':
             self.create_user_board()
             self.auto_create_board(self.cpu_board)
             self.print_boards()
         else:
             self.auto_create_board(self.cpu_board)
             self.auto_create_board(self.user_board)
-            self.print_boards()
-
-        input('')
 
     def create_boards(self) -> None:
         for y in range(self.height):
@@ -65,7 +66,7 @@ class Battleship:
 
     def print_boards(self) -> None:
         print(heading(self.leaderboard.username))
-        
+
         print(
             ' ' * self.width, 'Your Board',
             ' ' * (self.width * 3), 'CPU Board', '\n'
@@ -108,9 +109,9 @@ class Battleship:
         print(heading(self.leaderboard.username))
 
         print(f'\n~~ Place your {self.num_ships} ships ~~ \n')
-        print(f'\n - Type "quit" to return to the menu \n')
+        print('\n - Type "quit" to return to the menu \n')
         time.sleep(2)
-        
+       
         for index, ship in enumerate(self.ships["names"]):
             length: str = self.ships["length"][index]
             direction_input: str = 'h'
@@ -179,4 +180,77 @@ class Battleship:
                 board[x+i][y] = char
             else:
                 board[x][y+i] = char
+    
+    def play(self) -> None:
+        self.print_boards()
+        turns: List[Callable] = [self.player_turn, self.cpu_turn]
+        user_input: str = ''
 
+        print('Choose heads or tails')
+        while True:
+            user_input = input(': ')
+            if user_input.lower() not in ['heads', 'tails']:
+                input_error('Invalid input, please choose \'heads\' or \'tails\'', 1)
+                continue
+            else:
+                if user_input != choice(['heads', 'tails']):
+                    turns = [turns[1], turns[0]]
+                    input_error('You lost the coin toss, CPU goes first', 2)
+                else:
+                    input_error('You won the coin toss, You go first', 2)
+                break    
+        
+        while True:
+            self.print_boards()
+
+            if not turns[0]():
+                break
+
+            if not turns[1]():
+                break
+
+    def player_turn(self) -> int:
+        print('Enter your coords to fire in the format: x, y')
+        while True:
+            user_input = input('Your Turn: ')
+
+            if user_input == 'quit':
+                self.restart()
+
+            user_input = [c.strip() for c in user_input.split(',')]
+            
+            if len(user_input) != 2:
+                input_error('Please enter coords in the correct format: x , y', 1)
+            elif user_input[0].isdigit() and user_input[1].isdigit():
+                x = int(user_input[0])
+                y = int(user_input[1])
+                pos = self.cpu_board[x][y]
+                
+                if pos != '.':
+                    input_error('You have already fired there', 1)
+                    continue
+                if pos in self.ships["chars"]:
+                    pos = Colors.RED + '✴️' + Colors.ENDC
+                    input_error('You have hit a boat!', 2)
+                else:
+                    pos = Colors.ORANGE + '⚬' + Colors.ENDC
+                    input_error('You have missed!', 2)
+                break
+            else:
+                input_error('Please enter coords in the correct format: X , Y', 1)
+                continue
+
+        return 0
+
+    def cpu_turn(self) -> int:
+        input('CPU Turn: ')
+        input_error('', 2)
+        return 1
+
+    def update_board(self, board: List[List[str]], x: int, y: int) -> str:
+        # check if tile already used
+
+        # update tile
+
+        # return status
+        return ''

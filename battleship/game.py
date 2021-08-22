@@ -117,6 +117,7 @@ class Game:
                 input_error('Invalid input, please enter a valid number in range', 2)
         
         self.battleship: Battleship = Battleship(board, self.leaderboard, self.restart)
+        self.battleship.start()
        
     def restart(self) -> None:
         os.system('clear')
