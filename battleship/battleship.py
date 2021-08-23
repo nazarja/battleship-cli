@@ -253,7 +253,7 @@ class Battleship:
                     self.hits_board[y][x] = character
                     self.cpu_board[y][x] = character
                     self.player_hits += 1
-                    self.player_score += 10
+                    self.player_score += 20
                     self.update_heading()
                     input_message('You have hit a boat!', 2)
                 else:
@@ -285,7 +285,10 @@ class Battleship:
                 neighbours = self.get_neighbours(self.cpu_last_hit[0], self.cpu_last_hit[1])
                 y, x = choice(neighbours)
 
-            pos = self.user_board[y][x]
+            try:
+                pos = self.user_board[y][x]
+            except IndexError:
+                continue
 
             if pos in ['×', '🟏']:
                 continue
