@@ -88,8 +88,8 @@ class Game:
         print(heading(self.leaderboard.username))
         print('~~ Board Dimensions ~~ \n')
 
-        print('min-height:  6  -  min-width: 10  -  min-ships: 3')
-        print('max-height:  6  -  max-width: 10  -  max-ships: 5')
+        print('min-height:  6  -  min-width: 6  -  min-ships: 3')
+        print('max-height:  10  -  max-width: 10  -  max-ships: 5')
         print('\n')
 
         board: Dict[str, List[int]] = {
