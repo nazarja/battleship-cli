@@ -50,10 +50,6 @@ class Leaderboard:
                     print('Please enter a password')
                     password_input: str = getpass(mask='*')
 
-                    print(password_input)
-                    password_input = input(': ')
-                    
-
                     if password_input == 'quit':
                         return 0
                     elif len(password_input) < 5:
