@@ -6,6 +6,7 @@ from typing import List
 from google.oauth2.service_account import Credentials
 from .helpers import get_score_as_int, heading, input_error, quit_text
 from bcrypt import gensalt, hashpw, checkpw
+from stdiomask import getpass
 
 
 class Leaderboard:
@@ -47,7 +48,11 @@ class Leaderboard:
 
                 while True:
                     print('Please enter a password')
-                    password_input: str = input(': ')
+                    password_input: str = getpass(mask='*')
+
+                    print(password_input)
+                    password_input = input(': ')
+                    
 
                     if password_input == 'quit':
                         return 0
@@ -84,7 +89,7 @@ class Leaderboard:
 
                 while True:
                     print('Enter Your Password.')
-                    password_input = input(': ')
+                    password_input: str = getpass(mask='∗')
                     
                     if password_input == 'quit':
                         return 0
@@ -132,5 +137,6 @@ class Leaderboard:
     def update_user_score(self, username: str, score: int) -> None:
         for index, entry in enumerate(self.leaderboard):
             if username.capitalize() == entry[0]:
-                self.worksheet.update_cell(index+2, 3, int(entry[2]) + 1)
-                self.worksheet.update_cell(index+2, 4, score)
+                if int(entry[3]) < score:
+                    self.worksheet.update_cell(index+2, 3, int(entry[2]) + 1)
+                    self.worksheet.update_cell(index+2, 4, score)

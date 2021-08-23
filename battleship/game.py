@@ -9,12 +9,7 @@ from .helpers import isNotNumber, heading, input_error
 class Game:
     def __init__(self):
         self.leaderboard: Leaderboard = Leaderboard()
-        # self.start()
-        Battleship({
-            'height': [6, 10, 6],
-            'width': [6, 10, 6],
-            'ships': [3, 5, 3]
-        }, self.leaderboard, self.restart, self.show_options)
+        self.start()
 
     def start(self) -> None:
         self.welcome_message()

@@ -37,7 +37,6 @@ class Battleship:
             "chars": ['S' * 2, 'D' * 3, 'C' * 3, 'B' * 4, 'A' * 5][:self.num_ships],
             "length": ['2', '3', '3', '4', '5'][:self.num_ships]
         }
-        self.start()
 
     def start(self) -> None:
         self.create_boards()
@@ -85,8 +84,8 @@ class Battleship:
             ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
             ' ' * 5,
             ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
-            ' ' * 5,
-            ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
+            # ' ' * 5,
+            # ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
         )
 
         for i, row in enumerate(zip(self.user_board, self.hits_board, self.cpu_board)):
@@ -94,8 +93,8 @@ class Battleship:
                 f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[0]),
                 ' ' * 5,
                 f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[1]),
-                ' ' * 5,
-                f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[2]),
+                # ' ' * 5,
+                # f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[2]),
             )
 
         print('\n')
@@ -103,9 +102,9 @@ class Battleship:
     def colorize_char(self, c: str) -> str:
         if c in self.ships['codes']:
             return Colors.CYAN + c + ' ' * 2 + Colors.ENDC
-        elif c == '✴️':
+        elif c == '🟏':
             return Colors.RED + '🟏' + ' ' * 2 + Colors.ENDC
-        elif c == '⚬':
+        elif c == '×':
             return Colors.ORANGE + '×' + ' ' * 2 + Colors.ENDC
         return c
 
@@ -250,15 +249,17 @@ class Battleship:
                     input_message('You have already fired there', 1)
                     continue
                 if pos in self.ships["codes"]:
-                    character: str = '✴️'
+                    character: str = '🟏'
                     self.hits_board[y][x] = character
+                    self.cpu_board[y][x] = character
                     self.player_hits += 1
                     self.player_score += 10
                     self.update_heading()
                     input_message('You have hit a boat!', 2)
                 else:
-                    character: str = '⚬'
+                    character: str = '×'
                     self.hits_board[y][x] = character
+                    self.cpu_board[y][x] = character
                     self.player_misses += 1
                     self.player_score -= 5
                     self.update_heading()
@@ -277,25 +278,25 @@ class Battleship:
         print('CPU Turn: ')
 
         while True:
-            y: int = choice([x for x in range(self.height - 1)])
-            x: int = choice([x for x in range(self.width - 1)])
+            y: int = choice([x for x in range(self.height)])
+            x: int = choice([x for x in range(self.width)])
 
             if self.cpu_last_hit != []:
                 neighbours = self.get_neighbours(self.cpu_last_hit[0], self.cpu_last_hit[1])
-                x, y = choice(neighbours)
+                y, x = choice(neighbours)
 
             pos = self.user_board[y][x]
 
             if pos in ['×', '🟏']:
                 continue
             if pos in self.ships["codes"]:
-                character: str = '✴️'
+                character: str = '🟏'
                 self.user_board[y][x] = character
                 self.cpu_hits += 1
                 self.cpu_last_hit = [y, x]
                 input_message('CPU has hit your boat!', 2)
             else:
-                character: str = '⚬'
+                character: str = '×'
                 self.user_board[y][x] = character
                 self.cpu_last_hit = []
                 input_message('CPU has missed!', 2)
@@ -305,7 +306,7 @@ class Battleship:
             return True
         return False
 
-    def get_neighbours(self, x: int, y: int) -> List[Tuple[int, int]]:
+    def get_neighbours(self, y: int, x: int) -> List[Tuple[int, int]]:
         def remove_cells(t: tuple):
             if t[0] > self.width or t[0] < 0:
                 return False
@@ -313,8 +314,9 @@ class Battleship:
                 return False
             return True
 
-        cells = starmap(lambda a,b: (x + a, y + b), product((0, -1, +1), (0, -1, +1)))
-        cells = list(cells)[1:]
+        cells = [(y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)]
+        # cells = starmap(lambda a, b: (x + a, y + b), product((0, -1, +1), (0, -1, +1)))
+        # cells = list(cells)[1:]
         return list(filter(remove_cells, cells))
 
     def check_win(self) -> bool:
@@ -329,9 +331,9 @@ class Battleship:
 
         if player_won:
             print(
-                f'- Congradulations {self.leaderboard.username}, You WON!!\n'
-                f'You had {self.player_hits} Hits and {self.player_misses} Misses\n'
-                f'Your final score is {self.player_score} points'
+                f'\nCongratulations {self.leaderboard.username}, You WON!!\n'
+                f'\nYou had {self.player_hits} Hits and {self.player_misses} Misses\n'
+                f'\nYour final score is {self.player_score} points\n'
             )
             self.leaderboard.update_user_score(self.leaderboard.username, self.player_score)
             time.sleep(5)
