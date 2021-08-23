@@ -129,5 +129,8 @@ class Leaderboard:
 
         return []
 
-    def update_user_score(self, score: int):
-        pass
+    def update_user_score(self, username: str, score: int) -> None:
+        for index, entry in enumerate(self.leaderboard):
+            if username.capitalize() == entry[0]:
+                self.worksheet.update_cell(index+2, 3, int(entry[2]) + 1)
+                self.worksheet.update_cell(index+2, 4, score)

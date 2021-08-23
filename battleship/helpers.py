@@ -24,12 +24,12 @@ def get_score_as_int(x: List[str]) -> int:
     return int(x[3])
 
 
-def heading(username: str) -> str:
+def heading(text: str) -> str:
     os.system('clear')
     return (
         '=' * 80 +
-        '\n    BATTLESHIP' +
-        (f' - Welcome, {username.capitalize()} \n' if username else '\n') +
+        f'\n    {Colors.YELLOW}BATTLESHIP{Colors.ENDC}' +
+        (f' - Welcome, {text.capitalize()} \n' if text else '\n') +
         '=' * 80 + '\n'
     )
 

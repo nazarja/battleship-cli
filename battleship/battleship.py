@@ -12,16 +12,23 @@ class Battleship:
         self.leaderboard: Leaderboard = leaderboard
         self.height: int = board["height"][2]
         self.width: int = board["width"][2]
-        self.cpu_hits = 0
-        self.player_hits = 0
-        self.player_misses = 0
-        self.restart = restart
-        self.show_options = show_options
+        self.cpu_hits: int = 0
+        self.player_hits: int = 0
+        self.player_misses: int = 0
+        self.player_score: int = 0
+        self.restart: Callable = restart
+        self.show_options: Callable = show_options
         self.num_ships: int = board["ships"][2]
         self.user_board: List[List[str]] = []
         self.hits_board: List[List[str]] = []
         self.cpu_board: List[List[str]] = []
         self.direction_str: Dict[str, str] = {'h': 'horizontal', 'v': 'vertical'}
+        self.heading: str = (
+            f'{self.leaderboard.username} | '
+            f' {Colors.BLUE}hits{Colors.ENDC}: {self.player_hits}'
+            f' - {Colors.BLUE}misses{Colors.ENDC}: {self.player_misses}'
+            f' - {Colors.BLUE}score{Colors.ENDC}: {self.player_score}'
+        )
         self.ships: Dict[str, List[str]] = {
             "names": ['Submarine', 'Destroyer', 'Crusier', 'Battleship', 'Aircraft Carrier'][:self.num_ships],
             "codes": ['A', 'B', 'C', 'D', 'S'],
@@ -65,7 +72,7 @@ class Battleship:
             self.cpu_board.append(['.' for x in range(self.width)])
 
     def print_boards(self) -> None:
-        print(heading(self.leaderboard.username))
+        print(heading(self.heading))
 
         print(
             ' ' * self.width, 'Your Board',
@@ -76,8 +83,8 @@ class Battleship:
             ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
             ' ' * 5,
             ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
-            # ' ' * 5,
-            # ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
+            ' ' * 5,
+            ' ' * 3, ''.join(f'{str(x):3s}' for x in range(self.width)),
         )
 
         for i, row in enumerate(zip(self.user_board, self.hits_board, self.cpu_board)):
@@ -85,15 +92,15 @@ class Battleship:
                 f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[0]),
                 ' ' * 5,
                 f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[1]),
-                # ' ' * 5,
-                # f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[2]),
+                ' ' * 5,
+                f'{str(i):3s}', ''.join(f'{self.colorize_char(y):3s}' for y in row[2]),
             )
 
         print('\n')
 
     def colorize_char(self, c: str) -> str:
         if c in self.ships['codes']:
-            return Colors.BLUE + c + ' ' * 2 + Colors.ENDC
+            return Colors.CYAN + c + ' ' * 2 + Colors.ENDC
         elif c == '✴️':
             return Colors.RED + '🟏' + ' ' * 2 + Colors.ENDC
         elif c == '⚬':
@@ -244,11 +251,15 @@ class Battleship:
                     character: str = '✴️'
                     self.hits_board[y][x] = character
                     self.player_hits += 1
+                    self.player_score += 10
+                    self.update_heading()
                     input_message('You have hit a boat!', 2)
                 else:
                     character: str = '⚬'
                     self.hits_board[y][x] = character
                     self.player_misses += 1
+                    self.player_score -= 5
+                    self.update_heading()
                     input_message('You have missed!', 2)
                 break
             else:
@@ -291,20 +302,27 @@ class Battleship:
         return True if num_of_boat_tiles in [self.cpu_hits, self.player_hits] else False
 
     def show_winner(self) -> None:
-        print(heading(self.leaderboard.username))
+        print(heading(self.heading))
         player_won: bool = self.player_hits > self.cpu_hits
-        player_score: int = (self.player_hits * 10) - (self.player_misses * 5)
-        if player_score < 0:
-            player_score = 0
+        if self.player_score < 0:
+            self.player_score = 0
 
         if player_won:
-            print(f'- Congradulations {self.leaderboard.username}, You WON!!\n')
-            print(f'You had {self.player_hits} Hits and {self.player_misses} Misses\n')
-            print(f'Your final score is {player_score} points')
-            self.leaderboard.update_user_score(player_score)
+            print(
+                f'- Congradulations {self.leaderboard.username}, You WON!!\n'
+                f'You had {self.player_hits} Hits and {self.player_misses} Misses\n'
+                f'Your final score is {self.player_score} points'
+            )
+            self.leaderboard.update_user_score(self.leaderboard.username, self.player_score)
             time.sleep(5)
         else:
             print('CPU Won, please try again...')
             time.sleep(3)
 
-
+    def update_heading(self) -> None:
+        self.heading: str = (
+            f'{self.leaderboard.username} | '
+            f' {Colors.BLUE}hits{Colors.ENDC}: {self.player_hits}'
+            f' - {Colors.BLUE}misses{Colors.ENDC}: {self.player_misses}'
+            f' - {Colors.BLUE}score{Colors.ENDC}: {self.player_score}'
+        )
