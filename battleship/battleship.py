@@ -5,7 +5,7 @@ from .leaderboard import Leaderboard
 from .helpers import heading, input_error, input_message, Colors
 from typing import Dict, List, Callable, Tuple
 from random import choice
-from itertools import product, starmap
+# from itertools import product, starmap
 
 
 class Battleship:
