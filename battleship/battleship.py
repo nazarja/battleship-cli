@@ -3,8 +3,9 @@ import time
 from functools import reduce
 from .leaderboard import Leaderboard
 from .helpers import heading, input_error, input_message, Colors
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Tuple
 from random import choice
+from itertools import product, starmap
 
 
 class Battleship:
@@ -22,6 +23,7 @@ class Battleship:
         self.user_board: List[List[str]] = []
         self.hits_board: List[List[str]] = []
         self.cpu_board: List[List[str]] = []
+        self.cpu_last_hit: List[int] = []
         self.direction_str: Dict[str, str] = {'h': 'horizontal', 'v': 'vertical'}
         self.heading: str = (
             f'{self.leaderboard.username} | '
@@ -278,6 +280,10 @@ class Battleship:
             y: int = choice([x for x in range(self.height - 1)])
             x: int = choice([x for x in range(self.width - 1)])
 
+            if self.cpu_last_hit != []:
+                neighbours = self.get_neighbours(self.cpu_last_hit[0], self.cpu_last_hit[1])
+                x, y = choice(neighbours)
+
             pos = self.user_board[y][x]
 
             if pos in ['×', '🟏']:
@@ -286,16 +292,30 @@ class Battleship:
                 character: str = '✴️'
                 self.user_board[y][x] = character
                 self.cpu_hits += 1
+                self.cpu_last_hit = [y, x]
                 input_message('CPU has hit your boat!', 2)
             else:
                 character: str = '⚬'
                 self.user_board[y][x] = character
+                self.cpu_last_hit = []
                 input_message('CPU has missed!', 2)
             break
 
         if self.check_win():
             return True
         return False
+
+    def get_neighbours(self, x: int, y: int) -> List[Tuple[int, int]]:
+        def remove_cells(t: tuple):
+            if t[0] > self.width or t[0] < 0:
+                return False
+            if t[1] > self.height or t[1] < 0:
+                return False
+            return True
+
+        cells = starmap(lambda a,b: (x + a, y + b), product((0, -1, +1), (0, -1, +1)))
+        cells = list(cells)[1:]
+        return list(filter(remove_cells, cells))
 
     def check_win(self) -> bool:
         num_of_boat_tiles: int = reduce(lambda a, b: a + b, [int(i) for i in self.ships['length']])
